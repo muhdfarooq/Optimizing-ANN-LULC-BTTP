@@ -9,7 +9,7 @@
 
 /////////////////////////////////////////////////////
 // USER CONFIG
-var southern = ee.FeatureCollection("projects/ee-muhdfarooq4/assets/Southern"); // ROI asset
+var roiAsset = 'REPLACE_WITH_YOUR_ROI_ASSET'; // e.g. 'users/yourname/your_asset' OR set roi = ee.FeatureCollection(...) directly
 var startDate = '2013-01-01'; // earliest date to search (change if required)
 var endDate   = '2024-12-31'; // latest date to search (change if required)
 var month = null; // set to 1-12 for a specific month (e.g., 6 for June), or null for whole-year
