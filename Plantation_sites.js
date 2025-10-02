@@ -2,7 +2,7 @@
 // GEE SCRIPT: DRAW SOUTHERN BOUNDARY + POINTS FOR REFORESTATION SITES
 // -------------------------------------------------------------
 // 1. Load your Southern shapefile
-var southern = ee.FeatureCollection("projects/ee-muhdfarooq4/assets/Southern");
+var roiAsset = 'REPLACE_WITH_YOUR_ROI_ASSET'; // e.g. 'users/yourname/your_asset' OR set roi = ee.FeatureCollection(...) directly
 Map.centerObject(southern, 9);
 
 // 2. DMS → Decimal converter
@@ -55,8 +55,6 @@ var siteData = [
   {site:'Bhakkar C&W Land',     lat:'31 46 36.3', lon:'70 57 40.8'},
   {site:'Mahmood Abad',         lat:'32 09 35.6', lon:'71 01 38.4'},
   {site:'Kirri Kheshor',        lat:'32 19 20.2', lon:'71 12 19.7'},
-
-  // Extracted from first image (40 sites)
   {site:'Dher Zardad',            lat:'34 02 45.7', lon:'71 50 24.5'},
   {site:'Daman Hinki',            lat:'34 03 52.9', lon:'71 37 21.7'},
   {site:'Dalazak',                lat:'34 02 45.1', lon:'71 32 05.2'},
@@ -94,8 +92,6 @@ var siteData = [
   {site:'D I Khan Bypass',        lat:'31 47 27.1', lon:'70 51 37.9'},
   {site:'Zhob Road',              lat:'31 49 20.3', lon:'70 48 00.4'},
   {site:'Malakand Top NCC Road',  lat:'34 32 40.8', lon:'71 53 50.6'},
-
-  // Extracted from second image (40 sites)
   {site:'Azakhel Paya',          lat:'34 10 25.4', lon:'71 52 27.3'},
   {site:'Batkor',                lat:'34 11 42.4', lon:'72 12 28.3'},
   {site:'Billi Tang',            lat:'33 30 46.7', lon:'71 35 20.4'},
@@ -127,8 +123,6 @@ var siteData = [
   {site:'Khrasha Banda',         lat:'33 31 14.9', lon:'71 10 31.0'},
   {site:'Jawarzara',             lat:'33 34 50.5', lon:'71 11 41.6'},
   {site:'Said Abad',             lat:'32 17 04.7', lon:'70 51 02.8'},
-
-  // Extracted from third image (28 sites)
   {site:'Army rang Manki Sharif', lat:'33 56 41.0', lon:'71 57 32.9'},
   {site:'Gari chand',             lat:'33 49 20.2', lon:'71 42 38.7'},
   {site:'Mughalka',               lat:'34 03 53.1', lon:'72 09 43.6'},
