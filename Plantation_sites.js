@@ -1,7 +1,6 @@
 // -------------------------------------------------------------
 // GEE SCRIPT: DRAW SOUTHERN BOUNDARY + POINTS FOR REFORESTATION SITES
 // -------------------------------------------------------------
-
 // 1. Load your Southern shapefile
 var southern = ee.FeatureCollection("projects/ee-muhdfarooq4/assets/Southern");
 Map.centerObject(southern, 9);
