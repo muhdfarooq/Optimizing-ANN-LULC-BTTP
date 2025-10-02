@@ -155,7 +155,6 @@ var siteData = [
   {site:'Chashma Road sigrra beat',lat:'30 19 25.4',lon:'85 08 90.0'},
   {site:'C & W land Bahker',      lat:'31 44 49.7', lon:'70 58 11.2'}
 ];
-
 // 4. Convert siteData to point FeatureCollection
 var sites = ee.FeatureCollection(siteData.map(function(d) {
   var lon = dmsToDec(d.lon);
