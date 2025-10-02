@@ -17,7 +17,6 @@ var seasonEndMonth   = 9;
 // If you prefer to manually set years, set manualYears = [2013,.....,2024].
 // Otherwise leave as [] to auto-generate from startDate/endDate.
 var manualYears = [];
-
 // Pass NDVI to Ermida module if desired (true/false)
 var use_ndvi = true;
 
