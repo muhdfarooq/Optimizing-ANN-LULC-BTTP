@@ -13,7 +13,7 @@ var roiAsset = 'REPLACE_WITH_YOUR_ROI_ASSET'; // e.g. 'users/yourname/your_asset
 var startDate = '2013-01-01'; // earliest date to search (change if required)
 var endDate   = '2024-12-31'; // latest date to search (change if required)
 var month = null; // set to 1-12 for a specific month (e.g., 6 for June), or null for whole-year
-var years = []; // leave empty array [] to auto-detect years from imagery; OR set e.g. [2013,2019,2024]
+var years = []; // leave empty array [] to auto-detect years from imagery; OR set e.g. [2013,....,2024]
 var sites = null; // OPTIONAL: set to ee.FeatureCollection('projects/.../assets/sites') to run per-site stats
 var siteBuffer = 30; // buffer in meters around site points (if sites provided)
 /////////////////////////////////////////////////////
