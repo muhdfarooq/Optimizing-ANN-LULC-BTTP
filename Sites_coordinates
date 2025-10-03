@@ -1,0 +1,182 @@
+// -------------------------------------------------------------
+// GEE SCRIPT: DRAW SOUTHERN BOUNDARY + POINTS FOR REFORESTATION SITES
+// -------------------------------------------------------------
+// 1. Load your Southern shapefile
+var roiAsset = 'REPLACE_WITH_YOUR_ROI_ASSET'; // e.g. 'users/yourname/your_asset' OR set roi = ee.FeatureCollection(...) directly
+Map.centerObject(southern, 9);
+
+// 2. DMS → Decimal converter
+function dmsToDec(dms) {
+  var parts = dms.split(' ');
+  return ee.Number(parseFloat(parts[0]))
+    .add(ee.Number(parseFloat(parts[1])).divide(60))
+    .add(ee.Number(parseFloat(parts[2])).divide(3600));
+}
+
+var siteData = [
+  // Your initial example sites
+  {site:'Ghari Chandan',        lat:'33 50 04.5', lon:'71 43 22.4'},
+  {site:'Dheri Zardad',         lat:'34 04 00.1', lon:'71 50 28.8'},
+  {site:'Army Firing Range',    lat:'33 59 57.6', lon:'71 57 07.8'},
+  {site:'Janai',                lat:'34 20 04.4', lon:'72 13 21.0'},
+  {site:'Dambarodara',          lat:'34 24 22.0', lon:'72 21 37.5'},
+  {site:'Pitao Malandari',      lat:'34 24 55.6', lon:'72 21 02.8'},
+  {site:'Sargaroo',             lat:'34 25 32.9', lon:'72 18 24.5'},
+  {site:'Pumba',                lat:'34 18 28.5', lon:'72 21 18.3'},
+  {site:'Ziam Tangy',           lat:'34 24 32.6', lon:'72 17 54.1'},
+  {site:'Shahtori',             lat:'34 23 14.1', lon:'72 16 46.0'},
+  {site:'Bringan',              lat:'34 22 49.8', lon:'72 17 21.0'},
+  {site:'Saleem Khan',          lat:'34 22 47.2', lon:'72 18 39.8'},
+  {site:'Nandaro Kali',         lat:'34 03 21.8', lon:'72 12 37.3'},
+  {site:'Daggar',               lat:'34 04 38.4', lon:'72 08 15.3'},
+  {site:'Mishako Banda',        lat:'34 03 31.1', lon:'72 09 41.7'},
+  {site:'Muslim Abad',          lat:'34 25 15.5', lon:'72 00 02.9'},
+  {site:'Zareen Abad',          lat:'34 25 47.0', lon:'71 58 53.1'},
+  {site:'Muslim Abad Jamgae',   lat:'34 25 22.6', lon:'72 00 35.7'},
+  {site:'Marati',               lat:'34 04 04.3', lon:'72 07 03.7'},
+  {site:'Meshko Ali Mohammad',  lat:'34 03 03.8', lon:'72 09 44.0'},
+  {site:'Koteri',               lat:'33 25 16.8', lon:'71 36 47.1'},
+  {site:'Dhok Akbar Khan',      lat:'33 26 27.4', lon:'71 36 36.6'},
+  {site:'Dhoda',                lat:'33 27 25.7', lon:'71 31 00.8'},
+  {site:'Gul Hassan Banda',     lat:'33 35 49.7', lon:'71 46 33.1'},
+  {site:'Siab',                 lat:'33 27 05.7', lon:'71 36 55.8'},
+  {site:'Bar Abbas Khel',       lat:'33 27 47.8', lon:'70 58 15.1'},
+  {site:'Reserve Khrasha Beat', lat:'33 31 12.2', lon:'71 06 13.8'},
+  {site:'Kahi I & IV',          lat:'33 27 26.2', lon:'70 49 53.1'},
+  {site:'Shawai',               lat:'33 11 12.8', lon:'71 01 32.1'},
+  {site:'Chak Manzi',           lat:'32 55 06.6', lon:'71 00 42.7'},
+  {site:'Alwar Banda',          lat:'32 57 08.7', lon:'71 03 06.5'},
+  {site:'Adami Block',          lat:'35 58 44.9', lon:'70 44 06.6'},
+  {site:'Painda Khel',          lat:'32 57 41.4', lon:'70 48 36.3'},
+  {site:'Kashoo',               lat:'32 58 19.1', lon:'70 50 01.2'},
+  {site:'Barathi',              lat:'32 54 01.9', lon:'70 46 08.0'},
+  {site:'Gambila',              lat:'32 41 24.2', lon:'70 45 32.2'},
+  {site:'Wanda Mir Alam',       lat:'32 34 20.3', lon:'71 13 38.0'},
+  {site:'Bhakkar C&W Land',     lat:'31 46 36.3', lon:'70 57 40.8'},
+  {site:'Mahmood Abad',         lat:'32 09 35.6', lon:'71 01 38.4'},
+  {site:'Kirri Kheshor',        lat:'32 19 20.2', lon:'71 12 19.7'},
+  {site:'Dher Zardad',            lat:'34 02 45.7', lon:'71 50 24.5'},
+  {site:'Daman Hinki',            lat:'34 03 52.9', lon:'71 37 21.7'},
+  {site:'Dalazak',                lat:'34 02 45.1', lon:'71 32 05.2'},
+  {site:'Hisara Dhaki',           lat:'34 18 34.2', lon:'71 44 29.8'},
+  {site:'Dhok Bela',              lat:'34 00 45.2', lon:'72 31 17.0'},
+  {site:'Dheiri',                 lat:'34 23 46.1', lon:'72 02 50.8'},
+  {site:'Qasmi',                  lat:'34 26 27.9', lon:'72 03 18.9'},
+  {site:'Jamra',                  lat:'34 14 43',   lon:'71 56 52'},
+  {site:'Rajar Road',             lat:'34 14 24',   lon:'71 55 46'},
+  {site:'Shamozi',                lat:'34 23 50.6', lon:'72 06 52.7'},
+  {site:'Umar Abad',              lat:'34 18 45.5', lon:'71 57 30.4'},
+  {site:'Alao',                   lat:'34 24 23.0', lon:'72 02 47.2'},
+  {site:'Ghaar Bela',             lat:'34 00 06.5', lon:'72 30 18.0'},
+  {site:'Umardin Kalay',          lat:'32 55 48.3', lon:'70 58 02.7'},
+  {site:'Rehmat Shah Banda',      lat:'33 22 46.1', lon:'70 35 47.2'},
+  {site:'Pasto Nari Panos',       lat:'33 11 19.9', lon:'71 04 42.1'},
+  {site:'Tukh Sarai Naway Kalan', lat:'33 28 28.8', lon:'70 55 27.0'},
+  {site:'Naway Kalan',            lat:'33 29 07.5', lon:'70 55 42.9'},
+  {site:'Shuka Banda',            lat:'32 54 41.6', lon:'71 03 16.3'},
+  {site:'Shawa Nassti',           lat:'32 54 52.4', lon:'71 02 59.4'},
+  {site:'Shetaka Banda',          lat:'32 54 41.2', lon:'71 03 30.9'},
+  {site:'Topi',                   lat:'32 59 30.1', lon:'71 00 57.6'},
+  {site:'Kotka Muhammad Khan',    lat:'32 57 41.4', lon:'70 48 36.3'},
+  {site:'Walagi',                 lat:'32 58 19.1', lon:'70 50 01.2'},
+  {site:'Thandar Wala Lakki',     lat:'32 54 01.9', lon:'70 46 08.0'},
+  {site:'Gara Aslam',             lat:'32 03 14.8', lon:'70 25 51.8'},
+  {site:'Sami Alizai Farm',       lat:'32 06 00.06',lon:'71 02 28.2'},
+  {site:'Nisata Moterway',        lat:'34 07 07.0', lon:'71 46 59.9'},
+  {site:'Ambar Moterway',         lat:'34 00 48.8', lon:'72 24 37.9'},
+  {site:'Rashaka Moterway',       lat:'34 03 54.4', lon:'72 06 18.1'},
+  {site:'Machi Branch USC',       lat:'34 28 30.1', lon:'71 58 59.7'},
+  {site:'Kohat Bypass',           lat:'33 36 52.2', lon:'71 29 11.6'},
+  {site:'Kohat Pindi Railway Track',lat:'33 22 27.1', lon:'71 32 33.9'},
+  {site:'Taja Zai Lakki Road',    lat:'32 37 33.0', lon:'70 46 36.2'},
+  {site:'D I Khan Bypass',        lat:'31 47 27.1', lon:'70 51 37.9'},
+  {site:'Zhob Road',              lat:'31 49 20.3', lon:'70 48 00.4'},
+  {site:'Malakand Top NCC Road',  lat:'34 32 40.8', lon:'71 53 50.6'},
+  {site:'Azakhel Paya',          lat:'34 10 25.4', lon:'71 52 27.3'},
+  {site:'Batkor',                lat:'34 11 42.4', lon:'72 12 28.3'},
+  {site:'Billi Tang',            lat:'33 30 46.7', lon:'71 35 20.4'},
+  {site:'Teri Dargah',           lat:'33 17 31.5', lon:'71 07 14.8'},
+  {site:'Shabaz Azmat Khel',     lat:'32 56 36.9', lon:'70 42 06.8'},
+  {site:'Shari Gambila',         lat:'32 40 06.5', lon:'70 46 56.3'},
+  {site:'Daratang',              lat:'32 36 44.6', lon:'71 08 47.3'},
+  {site:'Gambila',               lat:'32 41 23.9', lon:'70 45 29.9'},
+  {site:'Gambela',               lat:'32 41 28.2', lon:'70 45 41.5'},
+  {site:'Mir Alam Minjiwala',    lat:'32 43 45.2', lon:'70 52 16.7'},
+  {site:'Mitha Pur',             lat:'30 31 99.6', lon:'87 08 00.0'},
+  {site:'Hote Village',          lat:'30 33 53.7', lon:'87 12 14.0'},
+  {site:'Ghafari Banda',         lat:'31 46 58.4', lon:'70 56 01.8'},
+  {site:'Torrak Khan',           lat:'29 61 811.0',lon:'83 32 365.0'},
+  {site:'Yasin Drazinda',        lat:'31 44 21.7', lon:'70 18 33.8'},
+  {site:'Dhapchabak Resume Land',lat:'31 47 37.8', lon:'70 57 27.0'},
+  {site:'Dame Phase Aera',       lat:'31 35 58.5', lon:'70 55 06.7'},
+  {site:'Taimur Sha Drahan',     lat:'31 45 38.2', lon:'70 22 04.7'},
+  {site:'Inyatullah Drahm',      lat:'31 41 17.5', lon:'70 24 31.9'},
+  {site:'Disty No.20 Tail 1 & 2',lat:'31 26 03.9', lon:'70 43 37.8'},
+  {site:'Alamgir Aria',          lat:'31 40 54.9', lon:'70 26 21.9'},
+  {site:'Salam Khan',            lat:'34 22 39.3', lon:'72 18 33.5'},
+  {site:'Bahadur Khel',          lat:'33 10 00.9', lon:'70 55 56.5'},
+  {site:'Drangi',                lat:'33 16 07.6', lon:'71 14 35.2'},
+  {site:'CRBC Tir Garh',         lat:'30 35 92.7', lon:'88 60 97.0'},
+  {site:'Mazghund',              lat:'34 16 09.8', lon:'72 39 40.8'},
+  {site:'Utal',                  lat:'34 15 05.8', lon:'72 40 47.8'},
+  {site:'Nak Banda',             lat:'33 23 59.0', lon:'71 45 37.5'},
+  {site:'Khrasha Banda',         lat:'33 31 14.9', lon:'71 10 31.0'},
+  {site:'Jawarzara',             lat:'33 34 50.5', lon:'71 11 41.6'},
+  {site:'Said Abad',             lat:'32 17 04.7', lon:'70 51 02.8'},
+  {site:'Army rang Manki Sharif', lat:'33 56 41.0', lon:'71 57 32.9'},
+  {site:'Gari chand',             lat:'33 49 20.2', lon:'71 42 38.7'},
+  {site:'Mughalka',               lat:'34 03 53.1', lon:'72 09 43.6'},
+  {site:'Aladher',                lat:'33 55 38.9', lon:'72 17 47.0'},
+  {site:'Sherbanda',              lat:'33 32 46.0', lon:'71 48 29.6'},
+  {site:'Banda Daood Shah',       lat:'33 19 01.5', lon:'71 13 18.6'},
+  {site:'Umerdin Kola 1',         lat:'32 55 41.5', lon:'70 58 04.5'},
+  {site:'Umerdin Kola 2',         lat:'32 55 49.6', lon:'70 58 30.8'},
+  {site:'Pastu',                  lat:'33 17 50.8', lon:'70 40 15.1'},
+  {site:'Edar Banda',             lat:'33 11 19.5', lon:'71 03 15.9'},
+  {site:'Raisan',                 lat:'33 34 36.7', lon:'71 09 51.5'},
+  {site:'Motory way',             lat:'34 05 09.2', lon:'71 43 47.8'},
+  {site:'Rama',                   lat:'34 21 07.8', lon:'72 06 03.9'},
+  {site:'Rashakai Ring Road',     lat:'34 08 08.1', lon:'72 01 56.0'},
+  {site:'Pindi road',             lat:'33 33 15.9', lon:'71 38 29.4'},
+  {site:'D.I khan road',          lat:'32 38 38.6', lon:'70 46 16.8'},
+  {site:'Spur No.18',             lat:'30 33 09.0', lon:'87 00 48.0'},
+  {site:'Chashma Road kot',       lat:'30 34 34.0', lon:'88 29 96.0'},
+  {site:'CRBC Matraha',           lat:'32 13 37.0', lon:'71 09 09.6'},
+  {site:'Kottla Mianer',          lat:'32 11 44.4', lon:'71 03 25.6'},
+  {site:'CRBC Bilot beat linear', lat:'32 16 33.0', lon:'71 10 43.4'},
+  {site:'Chashma Road Bilot beat',lat:'32 16 34.4', lon:'71 10 41.3'},
+  {site:'Chashma Road sigrra beat',lat:'30 19 25.4',lon:'85 08 90.0'},
+  {site:'C & W land Bahker',      lat:'31 44 49.7', lon:'70 58 11.2'}
+];
+// 4. Convert siteData to point FeatureCollection
+var sites = ee.FeatureCollection(siteData.map(function(d) {
+  var lon = dmsToDec(d.lon);
+  var lat = dmsToDec(d.lat);
+  return ee.Feature(ee.Geometry.Point([lon, lat]), {name: d.site});
+}));
+
+// 5. Style and display the Southern boundary
+var boundaryVis = {color: '0000FF', fillColor: '00000000', width: 4};
+Map.addLayer(southern.style(boundaryVis), {}, 'Southern Boundary');
+
+// 6. Style and display the site points
+var pointVis = {color: 'red', pointSize: 6};
+Map.addLayer(sites.style(pointVis), {}, 'Reforestation Sites');
+// 6a. Buffer each site (5 km radius) so it renders as a big red blob
+var siteBuffers = sites.map(function(f) {
+  return f.buffer(2000);  // 5 km in meters
+});
+
+// 6b. Paint boundary + buffers into an image
+var painted = ee.Image()
+  .paint(southern, 1, 4)        // blue boundary, 4px
+  .paint(siteBuffers, 2, 5);    // red fill (width=0 fills polygon)
+
+// 6c. Export a thumbnail — here 512px so each 5 km buffer looks huge
+var thumbURL = painted.getThumbURL({
+  min: 0, max: 2,
+  palette: ['00000000','0000FF','FF0000'],
+  region: southern.geometry(),
+  dimensions: 512
+});
+print('▶️ Download BIG-BUFFER PNG:', thumbURL);
